@@ -1,0 +1,60 @@
+name: TasC API Test
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create .env file from secrets
+        run: |
+          echo "DB_HOST=db" >> .env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> .env
+          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> .env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          echo "PORT=3000" >> .env
+
+      - name: Start containers
+        run: docker compose up --build -d
+
+      - name: Wait for app to be ready
+        run: sleep 20
+
+      - name: Register a user
+        run: |
+          curl -f -X POST http://localhost:3000/api/auth/register \
+            -H "Content-Type: application/json" \
+            -d '{"firstName":"Jane","lastName":"Doe","email":"jane@test.com","password":"secret123"}'
+
+      - name: Login and save token
+        run: |
+          TOKEN=$(curl -s -X POST http://localhost:3000/api/auth/login \
+            -H "Content-Type: application/json" \
+            -d '{"email":"jane@test.com","password":"secret123"}' \
+            | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+          echo "TOKEN=$TOKEN" >> $GITHUB_ENV
+
+      - name: Create a task
+        run: |
+          curl -f -X POST http://localhost:3000/api/tasks \
+            -H "Content-Type: application/json" \
+            -H "Authorization: Bearer ${{ env.TOKEN }}" \
+            -d '{"taskName":"Test Task","taskDate":"2026-05-10","taskTime":"09:00:00","priority":"High"}'
+
+      - name: Get tasks
+        run: |
+          curl -f http://localhost:3000/api/tasks \
+            -H "Authorization: Bearer ${{ env.TOKEN }}"
+
+      - name: Show logs if failed
+        if: failure()
+        run: docker compose logs
