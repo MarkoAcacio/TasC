@@ -40,5 +40,7 @@ function handleDisconnect() {
     })
 }
 
-handleDisconnect()
+//REMOVE COMMENT AFTER SETUP DATABASE
+
+//handleDisconnect()
 
