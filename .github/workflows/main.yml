@@ -27,7 +27,19 @@ jobs:
         run: docker compose up --build -d
 
       - name: Wait for app to be ready
-        run: sleep 20
+        run: |
+          echo "Waiting for app to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:3000/api/auth/login > /dev/null 2>&1; then
+              echo "✅ App is ready!"
+              break
+            fi
+            echo "Attempt $i/30 - waiting 5s..."
+            sleep 5
+          done
+
+      - name: Check containers are running
+        run: docker compose ps
 
       - name: Register a user
         run: |
