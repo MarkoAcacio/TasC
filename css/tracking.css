@@ -1,0 +1,180 @@
+/* ==============================================
+   Tracking page — stats, filters, table
+   ============================================== */
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line);
+}
+.page-header h1 { font-size: 3rem; }
+.page-header .eyebrow { display: block; margin-bottom: 0.75rem; }
+
+/* ============= STATS ============= */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+.stat-card {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; height: 100%;
+  background: var(--amber);
+}
+.stat-card.done::before     { background: var(--sage); }
+.stat-card.progress::before { background: var(--sky); }
+.stat-card.high::before     { background: var(--rust); }
+.stat-label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 0.5rem;
+}
+.stat-value {
+  font-family: 'Fraunces', serif;
+  font-size: 2.5rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+}
+.stat-sub {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-top: 0.5rem;
+}
+
+/* ============= FILTER BAR ============= */
+.filter-bar {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: 1rem 1.25rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.filter-group label {
+  font-size: 0.7rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.filter-group select,
+.filter-group input {
+  padding: 0.4rem 0.7rem;
+  background: var(--cream);
+  border: 1px solid var(--line);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+.filter-group input { min-width: 220px; }
+.filter-spacer { flex: 1; }
+
+/* ============= TABLE ============= */
+.table-wrap {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  overflow-x: auto;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+thead {
+  background: var(--cream-deep);
+}
+th {
+  text-align: left;
+  padding: 1rem 1.25rem;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+th.sortable { cursor: pointer; user-select: none; }
+th.sortable:hover { color: var(--ink); }
+th .sort-arrow { opacity: 0.4; margin-left: 0.25rem; }
+th.active .sort-arrow { opacity: 1; color: var(--amber-deep); }
+
+td {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+  color: var(--ink-soft);
+}
+tr:last-child td { border-bottom: none; }
+tr.task-row { transition: background 0.15s; }
+tr.task-row:hover { background: var(--cream-deep); }
+tr.task-row.done td:nth-child(2) {
+  text-decoration: line-through;
+  color: var(--muted);
+}
+
+.task-id {
+  font-family: 'Fraunces', serif;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.task-name-cell {
+  font-family: 'Fraunces', serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--ink);
+}
+.table-actions {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+}
+.icon-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--line);
+  background: transparent;
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: all 0.2s;
+  color: var(--ink-soft);
+}
+.icon-btn:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+.icon-btn.danger:hover { background: var(--rust); border-color: var(--rust); }
+
+.empty-state {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--muted);
+}
+.empty-state p {
+  font-family: 'Fraunces', serif;
+  font-style: italic;
+  font-size: 1.2rem;
+}
+
+@media (max-width: 900px) {
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat-value { font-size: 2rem; }
+  th, td { padding: 0.75rem 0.85rem; font-size: 0.85rem; }
+}

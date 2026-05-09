@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Almanac — Task Manager</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/index.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">Alma<span>·</span>nac</a>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="calendar.html">Calendar</a>
+      <a href="tracking.html">Tracking</a>
+    </div>
+  </nav>
+
+  <div class="ornament top-right serif">·</div>
+
+  <section class="hero">
+    <div class="hero-left fade-up">
+      <span class="eyebrow">A planner for considered work</span>
+      <h1>Plan the day. <em>Honor</em> the hours.</h1>
+      <p>
+        A quiet calendar for tracking what matters — appointments, deadlines, and
+        the small rituals that make a week feel intentional. Nothing flashy. Just
+        a clear view of your time.
+      </p>
+      <div class="flex gap-2">
+        <a href="calendar.html" class="btn btn-primary">Open Calendar →</a>
+        <a href="tracking.html" class="btn btn-ghost">View Tracking</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><strong>03</strong><span>Today's tasks</span></div>
+        <div class="stat"><strong>87%</strong><span>This week</span></div>
+        <div class="stat"><strong>14</strong><span>Streak (days)</span></div>
+      </div>
+    </div>
+
+    <div class="auth-panel fade-up" style="animation-delay: 0.15s;">
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="signin">Sign in</button>
+        <button class="auth-tab" data-tab="register">Register</button>
+      </div>
+
+      <!-- Sign in (Email + Password from Users table) -->
+      <form class="auth-form active" id="signin-form" data-form="signin" onsubmit="handleSignIn(event)">
+        <div class="field">
+          <label for="signin-email">Email</label>
+          <input type="email" id="signin-email" name="Email" maxlength="255" required placeholder="you@domain.com" />
+        </div>
+        <div class="field">
+          <label for="signin-password">Password</label>
+          <input type="password" id="signin-password" name="Password" required placeholder="••••••••" />
+        </div>
+        <div class="checkbox-row">
+          <input type="checkbox" id="remember" />
+          <label for="remember" style="text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--ink-soft); margin: 0;">
+            Keep me signed in
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Sign in</button>
+      </form>
+
+      <!-- Register (FirstName, LastName, Email, Password from Users table) -->
+      <form class="auth-form" id="register-form" data-form="register" onsubmit="handleRegister(event)">
+        <div class="field-row">
+          <div class="field">
+            <label for="reg-first">First name</label>
+            <input type="text" id="reg-first" name="FirstName" maxlength="100" required placeholder="Jane" />
+          </div>
+          <div class="field">
+            <label for="reg-last">Last name</label>
+            <input type="text" id="reg-last" name="LastName" maxlength="100" required placeholder="Doe" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="reg-email">Email</label>
+          <input type="email" id="reg-email" name="Email" maxlength="255" required placeholder="you@domain.com" />
+        </div>
+        <div class="field">
+          <label for="reg-password">Password</label>
+          <input type="password" id="reg-password" name="Password" minlength="8" required placeholder="At least 8 characters" />
+        </div>
+        <button type="submit" class="btn btn-primary">Create account</button>
+      </form>
+    </div>
+  </section>
+
+  <script src="js/index.js"></script>
+</body>
+</html>

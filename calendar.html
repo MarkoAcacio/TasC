@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calendar — Almanac</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/calendar.css" />
+</head>
+<body>
+  <nav class="nav">
+    <a href="index.html" class="nav-brand">Alma<span>·</span>nac</a>
+    <div class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="calendar.html" class="active">Calendar</a>
+      <a href="tracking.html">Tracking</a>
+    </div>
+  </nav>
+
+  <div class="container">
+    <div class="page-header fade-up">
+      <div>
+        <span class="eyebrow">Section I</span>
+        <h1 class="serif">Calendar</h1>
+      </div>
+      <button class="btn btn-primary" onclick="openModal()">+ New Task</button>
+    </div>
+
+    <div class="layout">
+      <!-- Calendar grid -->
+      <div class="calendar fade-up">
+        <div class="cal-header">
+          <h2 id="month-label" class="serif">April 2026</h2>
+          <div class="cal-nav">
+            <button onclick="changeMonth(-1)">‹</button>
+            <button onclick="goToday()" style="width: auto; padding: 0 0.85rem; font-size: 0.8rem;">Today</button>
+            <button onclick="changeMonth(1)">›</button>
+          </div>
+        </div>
+        <div class="weekdays">
+          <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div>
+          <div>Thu</div><div>Fri</div><div>Sat</div>
+        </div>
+        <div class="days" id="days-grid"></div>
+      </div>
+
+      <!-- Side: selected day's tasks -->
+      <aside class="side-panel">
+        <div class="day-detail fade-up" style="animation-delay: 0.1s;">
+          <h3 id="detail-date" class="serif">Tuesday, Apr 7</h3>
+          <p class="day-count" id="detail-count">3 tasks scheduled</p>
+          <div id="task-list"></div>
+        </div>
+
+        <div class="card fade-up" style="animation-delay: 0.2s;">
+          <span class="eyebrow">Quick stats</span>
+          <div class="flex between mt-2" style="font-family: 'Fraunces', serif;">
+            <span>This week</span><strong>12 tasks</strong>
+          </div>
+          <div class="divider" style="margin: 0.75rem 0;"></div>
+          <div class="flex between" style="font-family: 'Fraunces', serif;">
+            <span>Completion</span><strong style="color: var(--sage);">87%</strong>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- ============= ADD/EDIT TASK MODAL ============= -->
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="serif">New Task</h3>
+        <button class="modal-close" onclick="closeModal()">×</button>
+      </div>
+      <form id="task-form" onsubmit="saveTask(event)">
+        <div class="modal-body">
+          <!-- TaskName -->
+          <div class="field">
+            <label for="t-name">Task name</label>
+            <input type="text" id="t-name" name="TaskName" maxlength="255" required placeholder='e.g. "Team meeting"' />
+          </div>
+
+          <!-- TaskDate + TaskTime -->
+          <div class="field-row">
+            <div class="field">
+              <label for="t-date">Date</label>
+              <input type="date" id="t-date" name="TaskDate" required />
+            </div>
+            <div class="field">
+              <label for="t-time">Time</label>
+              <input type="time" id="t-time" name="TaskTime" required value="09:00" />
+            </div>
+          </div>
+
+          <!-- TaskDuration + Priority -->
+          <div class="field-row">
+            <div class="field">
+              <label for="t-duration">Duration (min)</label>
+              <input type="number" id="t-duration" name="TaskDuration" min="1" max="32767" required value="30" />
+            </div>
+            <div class="field">
+              <label for="t-priority">Priority</label>
+              <select id="t-priority" name="Priority" required>
+                <option value="Low">Low</option>
+                <option value="Medium" selected>Medium</option>
+                <option value="High">High</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Status -->
+          <div class="field">
+            <label for="t-status">Status</label>
+            <select id="t-status" name="Status" required>
+              <option value="Pending" selected>Pending</option>
+              <option value="In progress">In progress</option>
+              <option value="Done">Done</option>
+              <option value="Snoozed">Snoozed</option>
+            </select>
+          </div>
+
+          <!-- Notes -->
+          <div class="field">
+            <label for="t-notes">Notes (optional)</label>
+            <textarea id="t-notes" name="Notes" placeholder="Add details..."></textarea>
+          </div>
+
+          <!-- SendReminder -->
+          <div class="checkbox-row">
+            <input type="checkbox" id="t-reminder" name="SendReminder" checked />
+            <label for="t-reminder" style="text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--ink-soft); margin: 0;">
+              Send notification reminder
+            </label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/calendar.js"></script>
+</body>
+</html>
