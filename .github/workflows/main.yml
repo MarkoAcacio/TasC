@@ -24,7 +24,7 @@ jobs:
           echo "PORT=3000" >> .env
 
       - name: Start containers
-        run: docker compose up --build -d
+        run: docker compose up --build -d -v
 
       - name: Wait for app to be ready
         run: |
