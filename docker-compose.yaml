@@ -1,0 +1,46 @@
+# ============================================================
+#  TasC – Docker Compose
+#  Spins up: MySQL + Express app
+# ============================================================
+
+services:
+
+  # ── MySQL Database ─────────────────────────────────────────
+  db:
+    image: mysql:8.0
+    container_name: tasc_db
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+    ports:
+      - "3306:3306"           # expose so you can browse via phpMyAdmin/DBeaver
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./db_setup.sql:/docker-entrypoint-initdb.d/db_setup.sql  # auto-runs on first start
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Express App ────────────────────────────────────────────
+  app:
+    build: .
+    container_name: tasc_app
+    restart: unless-stopped
+    ports:
+      - "${PORT:-3000}:3000"
+    environment:
+      DB_HOST: db               # ← service name above, NOT localhost
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3000
+    depends_on:
+      db:
+        condition: service_healthy  # wait for MySQL to be ready
+
+volumes:
+  db_data:                      # persistent – data survives container restarts
