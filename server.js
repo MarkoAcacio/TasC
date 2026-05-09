@@ -429,6 +429,12 @@ app.get('/api/tasks/:id/history', authenticate, async (req, res) => {
 // ════════════════════════════════════════════════════════════
 //  STATIC FILES (optional – serve a frontend build)
 // ════════════════════════════════════════════════════════════
+const path    = require('path')
+
+// ── Static files ──────────────────────────────────────────────
+// Serve HTML, CSS, and JS files from the project root
+app.use(express.static(path.join(__dirname)))
+
 // app.use(express.static(path.join(__dirname, 'public')))
 
 // ════════════════════════════════════════════════════════════
