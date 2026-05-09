@@ -1,15 +1,9 @@
 // ===== Sample data (mirrors Tasks table) =====
+
+// TASK FORMAT
+// { TaskID: 1, UserID: 1, TaskName: 'Team standup',          TaskDate: '2026-04-07', TaskTime: '09:00', TaskDuration: 30,  Priority: 'High',   Status: 'In progress', Notes: '', SendReminder: 1 }
+
 let tasks = [
-  { TaskID: 1, UserID: 1, TaskName: 'Team standup',          TaskDate: '2026-04-07', TaskTime: '09:00', TaskDuration: 30,  Priority: 'High',   Status: 'In progress', Notes: '', SendReminder: 1 },
-  { TaskID: 2, UserID: 1, TaskName: 'Quarterly report due',  TaskDate: '2026-04-07', TaskTime: '14:00', TaskDuration: 60,  Priority: 'Medium', Status: 'Pending',     Notes: 'Q2 financials', SendReminder: 1 },
-  { TaskID: 3, UserID: 1, TaskName: 'Gym session',           TaskDate: '2026-04-07', TaskTime: '16:30', TaskDuration: 60,  Priority: 'Low',    Status: 'Pending',     Notes: '', SendReminder: 0 },
-  { TaskID: 4, UserID: 1, TaskName: 'Client call — Acme',    TaskDate: '2026-04-09', TaskTime: '11:00', TaskDuration: 45,  Priority: 'High',   Status: 'Pending',     Notes: '', SendReminder: 1 },
-  { TaskID: 5, UserID: 1, TaskName: 'Code review (PR #128)', TaskDate: '2026-04-12', TaskTime: '10:00', TaskDuration: 90,  Priority: 'Medium', Status: 'Pending',     Notes: '', SendReminder: 1 },
-  { TaskID: 6, UserID: 1, TaskName: 'Read research paper',   TaskDate: '2026-04-15', TaskTime: '20:00', TaskDuration: 60,  Priority: 'Low',    Status: 'Pending',     Notes: '', SendReminder: 0 },
-  { TaskID: 7, UserID: 1, TaskName: 'Submit tax forms',      TaskDate: '2026-04-04', TaskTime: '17:00', TaskDuration: 30,  Priority: 'High',   Status: 'Done',        Notes: '', SendReminder: 1 },
-  { TaskID: 8, UserID: 1, TaskName: 'Dentist appointment',   TaskDate: '2026-04-03', TaskTime: '08:30', TaskDuration: 45,  Priority: 'Medium', Status: 'Done',        Notes: '', SendReminder: 1 },
-  { TaskID: 9, UserID: 1, TaskName: 'Grocery run',           TaskDate: '2026-04-05', TaskTime: '11:00', TaskDuration: 45,  Priority: 'Low',    Status: 'Done',        Notes: '', SendReminder: 0 },
-  { TaskID: 10, UserID: 1, TaskName: 'Project planning',     TaskDate: '2026-04-10', TaskTime: '13:00', TaskDuration: 120, Priority: 'High',   Status: 'Snoozed',     Notes: '', SendReminder: 1 },
 ];
 
 let sortKey = 'TaskDate';
