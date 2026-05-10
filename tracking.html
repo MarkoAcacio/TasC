@@ -10,10 +10,32 @@
 <body>
   <nav class="nav">
     <a href="index.html" class="nav-brand">Tas<span>·</span>C</a>
-    <div class="nav-links">
-      <a href="index.html">Home</a>
-      <a href="calendar.html">Calendar</a>
-      <a href="tracking.html" class="active">Tracking</a>
+    <div class="nav-right">
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="calendar.html">Calendar</a>
+        <a href="tracking.html" class="active">Tracking</a>
+      </div>
+
+      <!-- Notification Bell -->
+      <div class="notif-wrap">
+        <button class="notif-btn" id="notif-btn" aria-label="Notifications" onclick="toggleNotifDropdown()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+          <span class="notif-dot" id="notif-dot" style="display:none;"></span>
+        </button>
+
+        <div class="notif-dropdown" id="notif-dropdown">
+          <div class="notif-header">
+            <span class="eyebrow">Notifications</span>
+          </div>
+          <div class="notif-list" id="notif-list">
+            <p class="notif-empty">No urgent tasks right now.</p>
+          </div>
+        </div>
+      </div>
     </div>
   </nav>
 
@@ -26,7 +48,6 @@
       <a href="calendar.html" class="btn btn-primary">+ New Task</a>
     </div>
 
-    <!-- Stats grid -->
     <div class="stats">
       <div class="stat-card fade-up" style="animation-delay: 0.05s;">
         <div class="stat-label">Total tasks</div>
@@ -50,7 +71,6 @@
       </div>
     </div>
 
-    <!-- Filters -->
     <div class="filter-bar fade-up" style="animation-delay: 0.25s;">
       <div class="filter-group">
         <label>Search</label>
@@ -79,7 +99,6 @@
       <button class="btn btn-ghost btn-sm" onclick="resetFilters()">Reset</button>
     </div>
 
-    <!-- Table -->
     <div class="table-wrap fade-up" style="animation-delay: 0.3s;">
       <table>
         <thead>
