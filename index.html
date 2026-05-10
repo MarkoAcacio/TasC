@@ -3,39 +3,17 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Almanac — Task Manager</title>
+  <title>TasC — Task Manager</title>
   <link rel="stylesheet" href="css/styles.css" />
   <link rel="stylesheet" href="css/index.css" />
 </head>
 <body>
   <nav class="nav">
     <a href="index.html" class="nav-brand">Tas<span>·</span>C</a>
-    <div class="nav-right">
-      <div class="nav-links">
-        <a href="index.html" class="active">Home</a>
-        <a href="calendar.html">Calendar</a>
-        <a href="tracking.html">Tracking</a>
-      </div>
-
-      <!-- Notification Bell -->
-      <div class="notif-wrap">
-        <button class="notif-btn" id="notif-btn" aria-label="Notifications" onclick="toggleNotifDropdown()">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
-            <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-          </svg>
-          <span class="notif-dot" id="notif-dot" style="display:none;"></span>
-        </button>
-
-        <div class="notif-dropdown" id="notif-dropdown">
-          <div class="notif-header">
-            <span class="eyebrow">Notifications</span>
-          </div>
-          <div class="notif-list" id="notif-list">
-            <p class="notif-empty">No urgent tasks right now.</p>
-          </div>
-        </div>
-      </div>
+    <div class="nav-links">
+      <a href="index.html" class="active">Home</a>
+      <a href="calendar.html">Calendar</a>
+      <a href="tracking.html">Tracking</a>
     </div>
   </nav>
 
@@ -55,18 +33,20 @@
         <a href="tracking.html" class="btn btn-ghost">View Tracking</a>
       </div>
       <div class="hero-stats">
-        <div class="stat"><strong id="stat-today">0</strong><span>Today's tasks</span></div>
+        <div class="stat"><strong id="stat-today">03</strong><span>Today's tasks</span></div>
         <div class="stat"><strong id="stat-week">87%</strong><span>This week</span></div>
-        <div class="stat"><strong>14</strong><span>Streak (days)</span></div>
+        <div class="stat"><strong id="stat-streak">14</strong><span>Streak (days)</span></div>
       </div>
     </div>
 
-    <div class="auth-panel fade-up" style="animation-delay: 0.15s;">
+    <!-- AUTH PANEL — shown when logged out -->
+    <div class="auth-panel fade-up" id="auth-panel" style="animation-delay: 0.15s;">
       <div class="auth-tabs">
         <button class="auth-tab active" data-tab="signin">Sign in</button>
         <button class="auth-tab" data-tab="register">Register</button>
       </div>
 
+      <!-- Sign in -->
       <form class="auth-form active" id="signin-form" data-form="signin" onsubmit="handleSignIn(event)">
         <div class="field">
           <label for="signin-email">Email</label>
@@ -78,13 +58,14 @@
         </div>
         <div class="checkbox-row">
           <input type="checkbox" id="remember" />
-          <label for="remember" style="text-transform: none; letter-spacing: 0; font-size: 0.9rem; color: var(--ink-soft); margin: 0;">
+          <label for="remember" style="text-transform:none;letter-spacing:0;font-size:0.9rem;color:var(--ink-soft);margin:0;">
             Keep me signed in
           </label>
         </div>
         <button type="submit" class="btn btn-primary">Sign in</button>
       </form>
 
+      <!-- Register -->
       <form class="auth-form" id="register-form" data-form="register" onsubmit="handleRegister(event)">
         <div class="field-row">
           <div class="field">
@@ -107,8 +88,27 @@
         <button type="submit" class="btn btn-primary">Create account</button>
       </form>
     </div>
+
+    <!-- DASHBOARD PANEL — shown after login/register -->
+    <div class="dashboard-panel fade-up" id="dashboard-panel" style="animation-delay:0.15s; display:none;">
+      <div class="dash-topbar">
+        <span class="eyebrow" id="dash-greeting">Welcome back</span>
+        <button class="btn btn-ghost btn-sm" onclick="handleSignOut()">Sign out</button>
+      </div>
+
+      <div class="chart-area">
+        <canvas id="taskPieChart"></canvas>
+      </div>
+
+      <div class="dashboard-info">
+        <p id="info-pending"  class="info-line"></p>
+        <p id="info-urgent"   class="info-line urgent-line" style="display:none;"></p>
+        <p id="info-upcoming" class="info-line" style="display:none;"></p>
+      </div>
+    </div>
   </section>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
   <script src="js/index.js"></script>
 </body>
 </html>
