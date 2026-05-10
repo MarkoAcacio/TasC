@@ -79,6 +79,15 @@ h3 { font-size: 1.35rem; }
   letter-spacing: -0.02em;
 }
 .nav-brand span { color: var(--amber); }
+
+/* nav-right groups links + bell together, shifted left */
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-right: 2rem;   /* shift the whole group left */
+}
+
 .nav-links { display: flex; gap: 2rem; align-items: center; }
 .nav-links a {
   color: var(--ink-soft);
@@ -90,18 +99,118 @@ h3 { font-size: 1.35rem; }
   transition: color 0.2s;
 }
 .nav-links a:hover { color: var(--amber-deep); }
-.nav-links a.active {
-  color: var(--amber-deep);
-}
+.nav-links a.active { color: var(--amber-deep); }
 .nav-links a.active::after {
   content: '';
   position: absolute;
   bottom: -0.25rem;
-  left: 0;
-  right: 0;
+  left: 0; right: 0;
   height: 2px;
   background: var(--amber);
 }
+
+/* ============= NOTIFICATION BELL ============= */
+.notif-wrap {
+  position: relative;
+}
+
+.notif-btn {
+  width: 38px;
+  height: 38px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink-soft);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 2px;
+  transition: all 0.2s;
+  position: relative;
+}
+.notif-btn:hover {
+  background: var(--ink);
+  color: var(--cream);
+  border-color: var(--ink);
+}
+
+/* Red dot indicator */
+.notif-dot {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  background: var(--rust);
+  border-radius: 50%;
+  border: 2px solid var(--cream);
+}
+
+/* Dropdown panel */
+.notif-dropdown {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.75rem);
+  right: 0;
+  width: 320px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  box-shadow: 0 12px 40px rgba(26,31,46,0.15);
+  z-index: 200;
+  animation: fadeUp 0.2s ease-out;
+}
+.notif-dropdown.open { display: block; }
+
+.notif-header {
+  padding: 1rem 1.25rem 0.75rem;
+  border-bottom: 1px solid var(--line);
+  background: var(--cream-deep);
+}
+
+.notif-list {
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.notif-empty {
+  padding: 1.5rem 1.25rem;
+  color: var(--muted);
+  font-style: italic;
+  font-family: 'Fraunces', serif;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+.notif-item {
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid var(--line);
+  transition: background 0.15s;
+}
+.notif-item:last-child { border-bottom: none; }
+.notif-item:hover { background: var(--cream-deep); }
+
+.notif-item-title {
+  font-weight: 500;
+  font-size: 0.9rem;
+  color: var(--ink);
+  margin-bottom: 0.2rem;
+}
+.notif-item-sub {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.notif-item-tag {
+  display: inline-block;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.15rem 0.45rem;
+  border-radius: 2px;
+  margin-bottom: 0.35rem;
+}
+.notif-item-tag.urgent  { background: rgba(139,58,31,0.1);  color: var(--rust); }
+.notif-item-tag.high    { background: rgba(201,116,42,0.1); color: var(--amber-deep); }
 
 /* ============= LAYOUT ============= */
 .container {
@@ -132,33 +241,16 @@ h3 { font-size: 1.35rem; }
   transition: all 0.2s;
   letter-spacing: 0.01em;
 }
-.btn-primary {
-  background: var(--ink);
-  color: var(--cream);
-}
+.btn-primary { background: var(--ink); color: var(--cream); }
 .btn-primary:hover {
   background: var(--amber-deep);
   transform: translateY(-1px);
   box-shadow: 0 4px 12px var(--shadow);
 }
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--line);
-}
-.btn-ghost:hover {
-  border-color: var(--ink);
-  background: var(--paper);
-}
-.btn-danger {
-  background: transparent;
-  color: var(--rust);
-  border-color: var(--rust);
-}
-.btn-danger:hover {
-  background: var(--rust);
-  color: var(--cream);
-}
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--line); }
+.btn-ghost:hover { border-color: var(--ink); background: var(--paper); }
+.btn-danger { background: transparent; color: var(--rust); border-color: var(--rust); }
+.btn-danger:hover { background: var(--rust); color: var(--cream); }
 .btn-sm { padding: 0.4rem 0.85rem; font-size: 0.8rem; }
 
 /* ============= FORMS ============= */
@@ -228,13 +320,13 @@ h3 { font-size: 1.35rem; }
   border-radius: 2px;
   border: 1px solid;
 }
-.badge-pending  { color: var(--muted);     border-color: var(--line);   background: var(--paper); }
-.badge-progress { color: var(--sky);       border-color: var(--sky);    background: rgba(74,107,138,0.08); }
-.badge-done     { color: var(--sage);      border-color: var(--sage);   background: rgba(107,125,90,0.08); }
-.badge-snoozed  { color: var(--plum);      border-color: var(--plum);   background: rgba(93,58,94,0.08); }
-.badge-high     { color: var(--rust);      border-color: var(--rust);   background: rgba(139,58,31,0.08); }
-.badge-medium   { color: var(--amber-deep);border-color: var(--amber);  background: rgba(201,116,42,0.08); }
-.badge-low      { color: var(--sage);      border-color: var(--sage);   background: rgba(107,125,90,0.08); }
+.badge-pending  { color: var(--muted);      border-color: var(--line);  background: var(--paper); }
+.badge-progress { color: var(--sky);        border-color: var(--sky);   background: rgba(74,107,138,0.08); }
+.badge-done     { color: var(--sage);       border-color: var(--sage);  background: rgba(107,125,90,0.08); }
+.badge-snoozed  { color: var(--plum);       border-color: var(--plum);  background: rgba(93,58,94,0.08); }
+.badge-high     { color: var(--rust);       border-color: var(--rust);  background: rgba(139,58,31,0.08); }
+.badge-medium   { color: var(--amber-deep); border-color: var(--amber); background: rgba(201,116,42,0.08); }
+.badge-low      { color: var(--sage);       border-color: var(--sage);  background: rgba(107,125,90,0.08); }
 
 /* ============= UTILITIES ============= */
 .muted { color: var(--muted); }
@@ -257,7 +349,9 @@ h3 { font-size: 1.35rem; }
 /* ============= RESPONSIVE ============= */
 @media (max-width: 768px) {
   .nav { padding: 1rem 1.5rem; }
+  .nav-right { margin-right: 0.5rem; gap: 1rem; }
   .container { padding: 2rem 1.25rem; }
   h1 { font-size: 2.25rem; }
   .field-row { grid-template-columns: 1fr; }
+  .notif-dropdown { width: 280px; right: -1rem; }
 }
