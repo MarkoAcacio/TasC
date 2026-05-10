@@ -273,6 +273,79 @@ function showBanner(msg, type = 'info') {
   el.textContent = msg;
   setTimeout(() => el.remove(), 4000);
 }
+// ── Notification Bell ─────────────────────────────────────────
+function toggleNotifDropdown () {
+  const dd = document.getElementById('notif-dropdown')
+  dd.classList.toggle('open')
+  if (dd.classList.contains('open')) loadNotifications()
+}
 
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.notif-wrap')
+  if (wrap && !wrap.contains(e.target)) {
+    document.getElementById('notif-dropdown')?.classList.remove('open')
+  }
+})
+
+async function loadNotifications () {
+  const token = localStorage.getItem('tasc_token') || sessionStorage.getItem('tasc_token')
+  if (!token) { renderNotifItems([]); return }
+  try {
+    const res   = await fetch(`${API}/tasks`, { headers: { Authorization: `Bearer ${token}` } })
+    if (!res.ok) { renderNotifItems([]); return }
+    const tasks = await res.json()
+    renderNotifItems(getUrgentTasks(tasks))
+  } catch { renderNotifItems([]) }
+}
+
+function getUrgentTasks (tasks) {
+  const now = new Date()
+  const urgent = []
+  tasks.forEach(t => {
+    if (['Done','Completed','Cancelled'].includes(t.Status)) return
+    const taskTime = new Date(`${t.TaskDate}T${t.TaskTime}`)
+    const diffMin  = (taskTime - now) / 60000
+    if (diffMin >= 0 && diffMin <= 30)
+      urgent.push({ task: t, type: 'urgent', diffMin: Math.round(diffMin) })
+    else if (t.Priority === 'High' && diffMin > 0 && diffMin <= 60)
+      urgent.push({ task: t, type: 'high', diffMin: Math.round(diffMin) })
+  })
+  return urgent.sort((a, b) => a.diffMin - b.diffMin)
+}
+
+function renderNotifItems (items) {
+  const list = document.getElementById('notif-list')
+  const dot  = document.getElementById('notif-dot')
+  if (!items.length) {
+    list.innerHTML = '<p class="notif-empty">No urgent tasks right now.</p>'
+    if (dot) dot.style.display = 'none'
+    return
+  }
+  if (dot) dot.style.display = 'block'
+  list.innerHTML = items.map(({ task, type, diffMin }) => `
+    <div class="notif-item">
+      <div class="notif-item-tag ${type}">
+        ${type === 'urgent' ? '⚡ Starting soon' : '🔴 High priority'}
+      </div>
+      <div class="notif-item-title">${task.TaskName}</div>
+      <div class="notif-item-sub">
+        ${diffMin === 0 ? 'Starting now' : `In ${diffMin} min`} ·
+        ${formatTime(task.TaskTime)} · ${task.Priority} priority
+      </div>
+    </div>
+  `).join('')
+}
+
+function formatTime (timeStr) {
+  if (!timeStr) return ''
+  const [h, m] = timeStr.split(':')
+  const hour = parseInt(h)
+  return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`
+}
+
+// Poll every 60s if logged in
+const _token = localStorage.getItem('tasc_token') || sessionStorage.getItem('tasc_token')
+if (_token) { loadNotifications(); setInterval(loadNotifications, 60000) }
+render()
 // ── Init ─────────────────────────────────────────────────────
 init();
