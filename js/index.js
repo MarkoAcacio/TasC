@@ -1,159 +1,230 @@
 // ============================================================
-//  js/index.js  —  Sign in, Register + Notification bell
+// Auth tab switching
 // ============================================================
+document.querySelectorAll('.auth-tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.auth-tab').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelector(`[data-form="${btn.dataset.tab}"]`).classList.add('active');
+  });
+});
 
-const API = 'http://localhost:3000/api'
+// ============================================================
+// Sample tasks — replace with real API fetch once backend is wired
+// ============================================================
+const dashTasks = [
+  { TaskID:  1, TaskName: 'Morning standup',  TaskDate: '2026-05-10', TaskTime: '09:00', TaskDuration: 30,  Status: 'Done',    completedAt: '2026-05-10T09:28:00' },
+  { TaskID:  2, TaskName: 'Review PR #42',    TaskDate: '2026-05-10', TaskTime: '10:00', TaskDuration: 45,  Status: 'Done',    completedAt: '2026-05-10T11:15:00' },
+  { TaskID:  3, TaskName: 'Write tests',      TaskDate: '2026-05-10', TaskTime: '11:30', TaskDuration: 60,  Status: 'Pending', completedAt: null },
+  { TaskID:  4, TaskName: 'Client email',     TaskDate: '2026-05-10', TaskTime: '13:00', TaskDuration: 20,  Status: 'Pending', completedAt: null },
+  { TaskID:  5, TaskName: 'Deploy hotfix',    TaskDate: '2026-05-09', TaskTime: '16:00', TaskDuration: 90,  Status: 'Done',    completedAt: '2026-05-09T17:45:00' },
+  { TaskID:  6, TaskName: 'Weekly report',    TaskDate: '2026-05-08', TaskTime: '15:00', TaskDuration: 40,  Status: 'Done',    completedAt: '2026-05-08T16:10:00' },
+  { TaskID:  7, TaskName: 'DB backup check',  TaskDate: '2026-05-07', TaskTime: '09:30', TaskDuration: 20,  Status: 'Done',    completedAt: '2026-05-07T10:05:00' },
+  { TaskID:  8, TaskName: 'Plan sprint',      TaskDate: '2026-05-11', TaskTime: '10:00', TaskDuration: 60,  Status: 'Pending', completedAt: null },
+  { TaskID:  9, TaskName: 'Code review docs', TaskDate: '2026-05-11', TaskTime: '14:00', TaskDuration: 30,  Status: 'Pending', completedAt: null },
+  { TaskID: 10, TaskName: 'Update README',    TaskDate: '2026-05-09', TaskTime: '11:00', TaskDuration: 25,  Status: 'Done',    completedAt: '2026-05-09T13:20:00' },
+  { TaskID: 11, TaskName: 'Fix login bug',    TaskDate: '2026-05-08', TaskTime: '10:00', TaskDuration: 45,  Status: 'Pending', completedAt: null },
+];
 
-// ── Tab switching ────────────────────────────────────────────
-document.querySelectorAll('.auth-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'))
-    document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'))
-    tab.classList.add('active')
-    document.querySelector(`[data-form="${tab.dataset.tab}"]`).classList.add('active')
-  })
-})
+// ---- Helpers -------------------------------------------------------
+function scheduledEnd(t) {
+  const d = new Date(t.TaskDate + 'T' + t.TaskTime + ':00');
+  d.setMinutes(d.getMinutes() + t.TaskDuration);
+  return d;
+}
 
-// ── Helpers ──────────────────────────────────────────────────
-function showError (formId, message) {
-  let err = document.querySelector(`#${formId} .auth-error`)
-  if (!err) {
-    err = document.createElement('p')
-    err.className = 'auth-error'
-    err.style.cssText = 'color:var(--rust);font-size:0.85rem;margin-bottom:1rem;padding:0.6rem 0.9rem;background:rgba(139,58,31,0.07);border-left:3px solid var(--rust);'
-    document.getElementById(formId).prepend(err)
+function classifyTask(t) {
+  if (t.Status !== 'Done') return 'Pending';
+  const diffMin = (new Date(t.completedAt) - scheduledEnd(t)) / 60000;
+  if (diffMin <= 0)  return 'Completed';
+  if (diffMin <= 30) return 'Completed late(30 mins)';
+  return 'Completed late(1-3hrs+)';
+}
+
+function buildStats() {
+  const counts = { 'Pending': 0, 'Completed': 0, 'Completed late(30 mins)': 0, 'Completed late(1-3hrs+)': 0 };
+  dashTasks.forEach(t => counts[classifyTask(t)]++);
+  return counts;
+}
+
+function getUrgentTask() {
+  const now = new Date();
+  let urgent = null, minLeft = Infinity;
+  dashTasks.filter(t => t.Status === 'Pending').forEach(t => {
+    const diff = (scheduledEnd(t) - now) / 60000;
+    if (diff > 0 && diff < minLeft) { minLeft = diff; urgent = t; }
+  });
+  return urgent ? { task: urgent, mins: Math.round(minLeft) } : null;
+}
+
+function getNextUpcoming() {
+  const now = new Date();
+  let next = null, minDiff = Infinity;
+  dashTasks.filter(t => t.Status === 'Pending').forEach(t => {
+    const diff = new Date(t.TaskDate + 'T' + t.TaskTime + ':00') - now;
+    if (diff > 0 && diff < minDiff) { minDiff = diff; next = t; }
+  });
+  return next;
+}
+
+function fmtDateTime(t) {
+  const d = new Date(t.TaskDate + 'T' + t.TaskTime + ':00');
+  const mo = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const h = d.getHours(), m = d.getMinutes();
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hh = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${mo[d.getMonth()]} ${d.getDate()} at ${hh}:${String(m).padStart(2,'0')} ${period}`;
+}
+
+// ---- Chart colours: yellow, green, red, dark navy ----------------
+const PIE_COLORS = ['#e9c46a', '#57cc99', '#e63946', '#1d2233'];
+const PIE_ORDER  = ['Pending', 'Completed', 'Completed late(30 mins)', 'Completed late(1-3hrs+)'];
+
+let pieChart = null;
+
+// ---- Custom plugin: slice labels drawn outside each wedge --------
+const sliceLabelPlugin = {
+  id: 'sliceLabels',
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const meta  = chart.getDatasetMeta(0);
+    const data  = chart.data.datasets[0].data;
+    const total = data.reduce((a, b) => a + b, 0);
+    if (!total) return;
+
+    meta.data.forEach((arc, i) => {
+      const val = data[i];
+      if (val === 0) return;
+      const pct      = Math.round(val / total * 100);
+      const label    = chart.data.labels[i];
+      const midAngle = arc.startAngle + (arc.endAngle - arc.startAngle) / 2;
+      const r        = arc.outerRadius * 1.22;
+      const x        = arc.x + Math.cos(midAngle) * r;
+      const y        = arc.y + Math.sin(midAngle) * r;
+
+      ctx.save();
+      ctx.font         = '10px Geist, sans-serif';
+      ctx.fillStyle    = '#2d3447';
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(label,       x, y - 6);
+      ctx.fillText(pct + '%',   x, y + 6);
+      ctx.restore();
+    });
   }
-  err.textContent = message
-}
-function clearError (formId) {
-  const err = document.querySelector(`#${formId} .auth-error`)
-  if (err) err.remove()
-}
-function saveSession (token, user, remember) {
-  const storage = remember ? localStorage : sessionStorage
-  storage.setItem('tasc_token', token)
-  storage.setItem('tasc_user', JSON.stringify(user))
-}
+};
 
-// ── Sign In ──────────────────────────────────────────────────
-async function handleSignIn (e) {
-  e.preventDefault()
-  clearError('signin-form')
-  const email    = document.getElementById('signin-email').value.trim()
-  const password = document.getElementById('signin-password').value
-  const remember = document.getElementById('remember').checked
-  try {
-    const res  = await fetch(`${API}/auth/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const data = await res.json()
-    if (!res.ok) { showError('signin-form', data.error || 'Sign in failed'); return }
-    saveSession(data.token, data.user, remember)
-    window.location.href = 'calendar.html'
-  } catch { showError('signin-form', 'Cannot reach server. Is it running?') }
-}
+// ---- Render the dashboard ----------------------------------------
+function renderDashboard(userName) {
+  const stats  = buildStats();
+  const total  = dashTasks.length;
+  const done   = dashTasks.filter(t => t.Status === 'Done').length;
+  const weekPct = total ? Math.round(done / total * 100) : 0;
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const todayCount = dashTasks.filter(t => t.TaskDate === todayStr).length;
 
-// ── Register ─────────────────────────────────────────────────
-async function handleRegister (e) {
-  e.preventDefault()
-  clearError('register-form')
-  const firstName = document.getElementById('reg-first').value.trim()
-  const lastName  = document.getElementById('reg-last').value.trim()
-  const email     = document.getElementById('reg-email').value.trim()
-  const password  = document.getElementById('reg-password').value
-  try {
-    const res  = await fetch(`${API}/auth/register`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ firstName, lastName, email, password }),
-    })
-    const data = await res.json()
-    if (!res.ok) { showError('register-form', data.error || 'Registration failed'); return }
-    const loginRes  = await fetch(`${API}/auth/login`, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    })
-    const loginData = await loginRes.json()
-    if (loginRes.ok) {
-      saveSession(loginData.token, loginData.user, false)
-      window.location.href = 'calendar.html'
-    } else {
-      document.querySelector('[data-tab="signin"]').click()
-      document.getElementById('signin-email').value = email
-    }
-  } catch { showError('register-form', 'Cannot reach server. Is it running?') }
-}
+  // Update hero stats
+  document.getElementById('stat-today').textContent  = String(todayCount).padStart(2, '0');
+  document.getElementById('stat-week').textContent   = weekPct + '%';
+  document.getElementById('stat-streak').textContent = done;
 
-// ── Notification Bell ─────────────────────────────────────────
-function toggleNotifDropdown () {
-  const dd = document.getElementById('notif-dropdown')
-  dd.classList.toggle('open')
-  if (dd.classList.contains('open')) loadNotifications()
-}
-
-document.addEventListener('click', e => {
-  const wrap = document.querySelector('.notif-wrap')
-  if (wrap && !wrap.contains(e.target)) {
-    document.getElementById('notif-dropdown')?.classList.remove('open')
+  // Greeting
+  if (userName) {
+    document.getElementById('dash-greeting').textContent = 'Welcome back, ' + userName;
   }
-})
 
-async function loadNotifications () {
-  const token = localStorage.getItem('tasc_token') || sessionStorage.getItem('tasc_token')
-  if (!token) { renderNotifItems([]); return }
-  try {
-    const res   = await fetch(`${API}/tasks`, { headers: { Authorization: `Bearer ${token}` } })
-    if (!res.ok) { renderNotifItems([]); return }
-    const tasks = await res.json()
-    renderNotifItems(getUrgentTasks(tasks))
-  } catch { renderNotifItems([]) }
-}
+  // Pie chart
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+  const ctx = document.getElementById('taskPieChart').getContext('2d');
+  const values = PIE_ORDER.map(k => stats[k]);
 
-function getUrgentTasks (tasks) {
-  const now = new Date()
-  const urgent = []
-  tasks.forEach(t => {
-    if (['Done','Completed','Cancelled'].includes(t.Status)) return
-    const taskTime = new Date(`${t.TaskDate}T${t.TaskTime}`)
-    const diffMin  = (taskTime - now) / 60000
-    if (diffMin >= 0 && diffMin <= 30)
-      urgent.push({ task: t, type: 'urgent', diffMin: Math.round(diffMin) })
-    else if (t.Priority === 'High' && diffMin > 0 && diffMin <= 60)
-      urgent.push({ task: t, type: 'high', diffMin: Math.round(diffMin) })
-  })
-  return urgent.sort((a, b) => a.diffMin - b.diffMin)
-}
+  pieChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+      labels: PIE_ORDER,
+      datasets: [{
+        data: values,
+        backgroundColor: PIE_COLORS,
+        borderWidth: 2,
+        borderColor: '#ede4d3'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      layout: { padding: { top: 44, bottom: 44, left: 56, right: 56 } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const v = ctx.parsed;
+              const t = values.reduce((a, b) => a + b, 0);
+              return ` ${ctx.label}: ${v} (${t ? Math.round(v/t*100) : 0}%)`;
+            }
+          }
+        }
+      },
+      animation: { animateScale: true, duration: 700 }
+    },
+    plugins: [sliceLabelPlugin]
+  });
 
-function renderNotifItems (items) {
-  const list = document.getElementById('notif-list')
-  const dot  = document.getElementById('notif-dot')
-  if (!items.length) {
-    list.innerHTML = '<p class="notif-empty">No urgent tasks right now.</p>'
-    if (dot) dot.style.display = 'none'
-    return
+  // Info rows
+  const pending = stats['Pending'];
+  document.getElementById('info-pending').innerHTML = `Pending tasks: <strong>${pending}</strong>`;
+
+  const urgent = getUrgentTask();
+  const urgentEl = document.getElementById('info-urgent');
+  if (urgent) {
+    urgentEl.textContent = `URGENT TASK (${urgent.task.TaskName}): ${urgent.mins} mins remaining`;
+    urgentEl.style.display = '';
+  } else {
+    urgentEl.style.display = 'none';
   }
-  if (dot) dot.style.display = 'block'
-  list.innerHTML = items.map(({ task, type, diffMin }) => `
-    <div class="notif-item">
-      <div class="notif-item-tag ${type}">
-        ${type === 'urgent' ? '⚡ Starting soon' : '🔴 High priority'}
-      </div>
-      <div class="notif-item-title">${task.TaskName}</div>
-      <div class="notif-item-sub">
-        ${diffMin === 0 ? 'Starting now' : `In ${diffMin} min`} ·
-        ${formatTime(task.TaskTime)} · ${task.Priority} priority
-      </div>
-    </div>
-  `).join('')
+
+  const upcoming = getNextUpcoming();
+  const upcomingEl = document.getElementById('info-upcoming');
+  if (upcoming) {
+    upcomingEl.textContent = `Upcoming task: ${upcoming.TaskName} (${fmtDateTime(upcoming)})`;
+    upcomingEl.style.display = '';
+  } else {
+    upcomingEl.style.display = 'none';
+  }
 }
 
-function formatTime (timeStr) {
-  if (!timeStr) return ''
-  const [h, m] = timeStr.split(':')
-  const hour = parseInt(h)
-  return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`
+// ---- Panel switching ---------------------------------------------
+function showDashboard(userName) {
+  document.getElementById('auth-panel').style.display    = 'none';
+  const dash = document.getElementById('dashboard-panel');
+  dash.style.display = 'block';
+  renderDashboard(userName);
 }
 
-// Poll every 60s if logged in
-const _token = localStorage.getItem('tasc_token') || sessionStorage.getItem('tasc_token')
-if (_token) { loadNotifications(); setInterval(loadNotifications, 60000) }
+function showAuth() {
+  if (pieChart) { pieChart.destroy(); pieChart = null; }
+  document.getElementById('dashboard-panel').style.display = 'none';
+  document.getElementById('auth-panel').style.display      = 'block';
+}
+
+// ---- Form handlers -----------------------------------------------
+function handleSignIn(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  console.log('SIGN IN payload (matches Users table):', data);
+  // TODO: POST /api/auth/signin → on success call showDashboard()
+  showDashboard(data.Email.split('@')[0]);
+}
+
+function handleRegister(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  console.log('REGISTER payload (matches Users table):', data);
+  // TODO: POST /api/auth/register → on success call showDashboard()
+  showDashboard(data.FirstName);
+}
+
+function handleSignOut() {
+  showAuth();
+}
