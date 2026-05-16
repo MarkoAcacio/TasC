@@ -8,14 +8,30 @@ const SALT_ROUNDS = 10;
 app.use(express.json());
 
 // ── Database config ───────────────────────────────────────────
-const dbConfig = {
-  host:     process.env.DB_HOST,
-  user:     process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
+// Flip this flag to switch between the Kubernetes-hosted MySQL pod
+// and the local phpMyAdmin / XAMPP MySQL instance.
+//   true  → Kubernetes cluster DB
+//   false → local phpMyAdmin DB
+const USE_KUBERNETES_DB = false;
+
+const kubernetesDbConfig = {
+  host:     process.env.DB_HOST     || 'mysql-service',
+  user:     process.env.DB_USER     || 'root',
+  password: process.env.DB_PASSWORD || '',
   database: 'task_manager',
-  // Return DATE/TIME columns as plain strings, not JS Date objects.
   dateStrings: true,
 };
+
+const phpMyAdminDbConfig = {
+  host:     'localhost',
+  user:     'root',
+  password: '',
+  database: 'task_manager',
+  dateStrings: true,
+};
+
+const dbConfig = USE_KUBERNETES_DB ? kubernetesDbConfig : phpMyAdminDbConfig;
+console.log(`Using ${USE_KUBERNETES_DB ? 'Kubernetes' : 'phpMyAdmin'} database @ ${dbConfig.host}`);
 
 let db;
 
@@ -122,10 +138,14 @@ function initDatabase() {
     });
 
     // Back-fill TimerFinish for rows that were created before this migration
+    // Subtract 8 hours to compensate for the UTC↔local-time drift in
+    // the completed-vs-deadline comparison (see tracking.js classifier).
     db.query(`
       UPDATE tasks
-         SET TimerFinish = ADDTIME(TaskTime, SEC_TO_TIME(TaskDuration * 60)),
-        '-8:00:00'
+         SET TimerFinish = SUBTIME(
+               ADDTIME(TaskTime, SEC_TO_TIME(TaskDuration * 60)),
+               '08:00:00'
+             )
        WHERE TimerFinish = '00:00:00'
     `, (err) => {
       if (err) console.error('TimerFinish back-fill error:', err.message);

@@ -9,6 +9,8 @@ const API = '/api'   // relative — works on any host/port
 const SESSION_USERID    = sessionStorage.getItem('tasc_userID')
 const SESSION_FIRSTNAME = sessionStorage.getItem('tasc_firstName') || 'Tasker'
 
+const USE_KUBERNETES_DB = false;  // SWITCH TO TRUE IF KUBERNETES
+
 if (!SESSION_USERID) {
   window.location.href = 'login.html'
 }
@@ -34,8 +36,10 @@ function classifyTask (t) {
 
   // DateFinished is a day later than TaskDate → always "Too late"
   if (t.DateFinished > t.TaskDate) return 'Too late'
-  // Both times are 'HH:MM:SS' strings from MySQL (dateStrings:true)
-  const diffMin = (timeToMinutes(t.TimeEnd) + 460) - timeToMinutes(t.TimerFinish)
+  // Finished on an earlier date than the deadline → always on time
+  if (t.DateFinished < t.TaskDate) return 'Completed'
+  // Same-day: compare times. Both are 'HH:MM:SS' strings from MySQL.
+  const diffMin = (timeToMinutes(t.TimeEnd) + (USE_KUBERNETES_DB ? 460 : 0)) - timeToMinutes(t.TimerFinish)
   
 if (diffMin > 180) {
   return 'Too late'
